@@ -17,7 +17,7 @@ class Conexao {
       var mapa = Map<String, dynamic>();
       mapa['rota'] = _ACAO_RETORNAR_TODOS;
       final resposta = await http.post(ROOT, body: mapa);
-      print('Resposta retornar pacientes: ${resposta.body}');
+      //print('Resposta retornar pacientes: ${resposta.body}');
 
       if (200 == resposta.statusCode) {
         List<Paciente> lista = parseResposta(resposta.body);
