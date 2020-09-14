@@ -7,6 +7,7 @@ import 'dart:typed_data';
 import 'dart:async';
 import 'dart:convert';
 import 'package:http_parser/http_parser.dart';
+import 'package:http/http.dart' as http;
 
 // url para imagens
 //https://arthurdlima.com/digital_aligner/images/exemplo.jpg
@@ -42,7 +43,7 @@ class EstadoWidgetPacientes extends State<WidgetPacientes> {
   String _progressoTitle;
 
   // Para upload de imagens
-  GlobalKey _formKey = new GlobalKey();
+  //GlobalKey _formKey = new GlobalKey();
   List<int> _arquivoSelecionado;
   Uint8List _dadosBytes;
   bool _isVisible;
@@ -65,7 +66,7 @@ class EstadoWidgetPacientes extends State<WidgetPacientes> {
     _fotoController = TextEditingController();
     _visualizador3dController = TextEditingController();
 
-    _formKey = new GlobalKey();
+    //_formKey = new GlobalKey();
     _arquivoSelecionado = List<int>();
     _dadosBytes = new Uint8List(8);
     _isVisible = false;
@@ -80,10 +81,36 @@ class EstadoWidgetPacientes extends State<WidgetPacientes> {
     });
   }
 
+  // Para envio de imagens
+  Future _enviarImg() async {
+    try {
+      var url = Uri.parse(
+          'https://arthurdlima.com/digital_aligner/controller/controller_pacientes.php');
+
+      var requisicao = new http.MultipartRequest("POST", url)
+        ..fields['rota'] = 'UPLOAD_IMAGEM';
+      requisicao
+        ..files.add(await http.MultipartFile.fromBytes(
+            'file', _arquivoSelecionado,
+            contentType: new MediaType('application', 'octet-stream'),
+            filename: _pacienteSelecionado.idPaciente));
+
+      requisicao.send().then((resposta) async {
+        http.Response.fromStream(resposta).then((response) {
+          if (response.statusCode == 200) {
+            print(response.body);
+          }
+        });
+      });
+    } catch (e) {
+      print("Erro ao tentar enviar imagem.");
+    }
+  }
+
   // Para upload de imagens
   _escolherImg() async {
     html.InputElement uploadInput = html.FileUploadInputElement();
-    uploadInput.multiple = true;
+    uploadInput.multiple = false;
     uploadInput.draggable = true;
     uploadInput.click();
     // Para conversão de imagens
@@ -480,12 +507,12 @@ class EstadoWidgetPacientes extends State<WidgetPacientes> {
                             style: TextStyle(fontSize: 20)),
                       ),
                       Visibility(
-                          visible: _isVisible,
-                          child: RaisedButton(
-                            onPressed: () {},
-                            child: const Text('Enviar!',
-                                style: TextStyle(fontSize: 20)),
-                          )),
+                        visible: _isVisible,
+                        child: Text('Imagem Carregada!',
+                            textAlign: TextAlign.center,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                      ),
                       Text(
                         "Visualizador 3D",
                         style: TextStyle(fontWeight: FontWeight.bold),
@@ -503,6 +530,7 @@ class EstadoWidgetPacientes extends State<WidgetPacientes> {
                 elevation: 5.0,
                 child: Text('Atualizar'),
                 onPressed: () {
+                  _enviarImg();
                   _atualizarPaciente();
                   Navigator.pop(context);
                 },
