@@ -55,6 +55,7 @@ class EstadoWidgetPacientes extends State<WidgetPacientes> {
     _estaAtualizando = false;
     _estaAdicionando = false;
 
+    // Para modelo 3d de pacientes (exemplo)
     _iframeElement.height = '500';
     _iframeElement.width = '500';
     _iframeElement.src =
@@ -111,6 +112,11 @@ class EstadoWidgetPacientes extends State<WidgetPacientes> {
         http.Response.fromStream(resposta).then((response) {
           if (response.statusCode == 200) {
             print(response.body);
+            setState(() {
+              //Limpar variavel img
+              _arquivoSelecionado = null;
+              _dadosBytes = null;
+            });
           }
         });
       });
@@ -183,7 +189,7 @@ class EstadoWidgetPacientes extends State<WidgetPacientes> {
             _complementoController.text,
             _estadoController.text,
             _cidadeController.text,
-            _visualizador3dController.text)
+            "Sim")
         .then((resultado) {
       print(resultado);
       if ('paciente adicionado com sucesso' == resultado) {
@@ -205,7 +211,7 @@ class EstadoWidgetPacientes extends State<WidgetPacientes> {
             _complementoController.text,
             _estadoController.text,
             _cidadeController.text,
-            _visualizador3dController.text)
+            "Sim")
         .then((resultado) {
       print(resultado);
       if ('paciente atualizado com sucesso' == resultado) {
@@ -238,9 +244,6 @@ class EstadoWidgetPacientes extends State<WidgetPacientes> {
     _estadoController.text = '';
     _cidadeController.text = '';
     _visualizador3dController.text = '';
-    //Limpar variavel img
-    _arquivoSelecionado = null;
-    _dadosBytes = null;
   }
 
   _mostrarValores(Paciente paciente) {
@@ -316,6 +319,9 @@ class EstadoWidgetPacientes extends State<WidgetPacientes> {
                         _estaAtualizando = true;
                         _estaAdicionando = false;
                         _isVisible = false;
+                        //Limpar variavel img
+                        _arquivoSelecionado = null;
+                        _dadosBytes = null;
                       });
                     }),
                     DataCell(Text(paciente.nome), onTap: () {
@@ -326,6 +332,9 @@ class EstadoWidgetPacientes extends State<WidgetPacientes> {
                         _estaAtualizando = true;
                         _estaAdicionando = false;
                         _isVisible = false;
+                        //Limpar variavel img
+                        _arquivoSelecionado = null;
+                        _dadosBytes = null;
                       });
                     }),
                     DataCell(Text(paciente.sobreNome), onTap: () {
@@ -336,6 +345,9 @@ class EstadoWidgetPacientes extends State<WidgetPacientes> {
                         _estaAtualizando = true;
                         _estaAdicionando = false;
                         _isVisible = false;
+                        //Limpar variavel img
+                        _arquivoSelecionado = null;
+                        _dadosBytes = null;
                       });
                     }),
                     DataCell(Text(paciente.email), onTap: () {
@@ -346,6 +358,9 @@ class EstadoWidgetPacientes extends State<WidgetPacientes> {
                         _estaAtualizando = true;
                         _estaAdicionando = false;
                         _isVisible = false;
+                        //Limpar variavel img
+                        _arquivoSelecionado = null;
+                        _dadosBytes = null;
                       });
                     }),
                     DataCell(Text(paciente.rua), onTap: () {
@@ -356,6 +371,9 @@ class EstadoWidgetPacientes extends State<WidgetPacientes> {
                         _estaAtualizando = true;
                         _estaAdicionando = false;
                         _isVisible = false;
+                        //Limpar variavel img
+                        _arquivoSelecionado = null;
+                        _dadosBytes = null;
                       });
                     }),
                     DataCell(Text(paciente.numero), onTap: () {
@@ -366,6 +384,9 @@ class EstadoWidgetPacientes extends State<WidgetPacientes> {
                         _estaAtualizando = true;
                         _estaAdicionando = false;
                         _isVisible = false;
+                        //Limpar variavel img
+                        _arquivoSelecionado = null;
+                        _dadosBytes = null;
                       });
                     }),
                     DataCell(Text(paciente.complemento), onTap: () {
@@ -376,6 +397,9 @@ class EstadoWidgetPacientes extends State<WidgetPacientes> {
                         _estaAtualizando = true;
                         _estaAdicionando = false;
                         _isVisible = false;
+                        //Limpar variavel img
+                        _arquivoSelecionado = null;
+                        _dadosBytes = null;
                       });
                     }),
                     DataCell(Text(paciente.estado), onTap: () {
@@ -385,7 +409,9 @@ class EstadoWidgetPacientes extends State<WidgetPacientes> {
                         _pacienteSelecionado = paciente;
                         _estaAtualizando = true;
                         _estaAdicionando = false;
-                        _isVisible = false;
+                        _isVisible = false; //Limpar variavel img
+                        _arquivoSelecionado = null;
+                        _dadosBytes = null;
                       });
                     }),
                     DataCell(Text(paciente.cidade), onTap: () {
@@ -396,6 +422,9 @@ class EstadoWidgetPacientes extends State<WidgetPacientes> {
                         _estaAtualizando = true;
                         _estaAdicionando = false;
                         _isVisible = false;
+                        //Limpar variavel img
+                        _arquivoSelecionado = null;
+                        _dadosBytes = null;
                       });
                     }),
                     DataCell(Text(paciente.foto), onTap: () {
@@ -406,6 +435,9 @@ class EstadoWidgetPacientes extends State<WidgetPacientes> {
                         _estaAtualizando = true;
                         _estaAdicionando = false;
                         _isVisible = false;
+                        //Limpar variavel img
+                        _arquivoSelecionado = null;
+                        _dadosBytes = null;
                       });
                     }),
                     DataCell(Text(paciente.visualizador3d), onTap: () {
@@ -416,6 +448,9 @@ class EstadoWidgetPacientes extends State<WidgetPacientes> {
                         _estaAtualizando = true;
                         _estaAdicionando = false;
                         _isVisible = false;
+                        //Limpar variavel img
+                        _arquivoSelecionado = null;
+                        _dadosBytes = null;
                       });
                     }),
                     DataCell(IconButton(
@@ -453,7 +488,7 @@ class EstadoWidgetPacientes extends State<WidgetPacientes> {
                   controller: _scrollController,
                   child: ListBody(
                     children: <Widget>[
-                      _pacienteSelecionado.foto.isEmpty
+                      _pacienteSelecionado.foto == "Não"
                           ? Image.asset(
                               'web/assets/sem-imagem.jpg',
                               height: 200,
@@ -541,8 +576,12 @@ class EstadoWidgetPacientes extends State<WidgetPacientes> {
                         "Visualizador 3D",
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
-                      TextField(
-                        controller: _visualizador3dController,
+                      Center(
+                        child: SizedBox(
+                          height: 350,
+                          width: 350,
+                          child: _iframeWidget,
+                        ),
                       ),
                     ],
                   ),
@@ -649,7 +688,7 @@ class EstadoWidgetPacientes extends State<WidgetPacientes> {
                       ),
                       RaisedButton(
                         onPressed: () {
-                          _escolherImg();
+                          //_escolherImg();
                         },
                         child: const Text('Carregar Foto',
                             style: TextStyle(fontSize: 20)),
@@ -662,12 +701,16 @@ class EstadoWidgetPacientes extends State<WidgetPacientes> {
                             style: TextStyle(fontWeight: FontWeight.bold)),
                       ),
                       Text(
-                        "Visualizador 3D",
+                        "Exemplo: Visualizador 3D",
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
-                      TextField(
-                        controller: _visualizador3dController,
-                      ),
+                      Center(
+                        child: SizedBox(
+                          height: 350,
+                          width: 350,
+                          child: _iframeWidget,
+                        ),
+                      )
                     ],
                   ),
                 ),
@@ -678,10 +721,6 @@ class EstadoWidgetPacientes extends State<WidgetPacientes> {
                 elevation: 5.0,
                 child: Text('Adicionar'),
                 onPressed: () {
-                  //Se imagem estiver carregada, enviá-la
-                  if (_isVisible == true) {
-                    _enviarImg();
-                  }
                   _adicionarPaciente();
                   Navigator.pop(context);
                 },
@@ -725,13 +764,6 @@ class EstadoWidgetPacientes extends State<WidgetPacientes> {
                     Container(
                       child: _dataBody(),
                     ),
-                    Center(
-                      child: SizedBox(
-                        height: 400,
-                        width: 400,
-                        child: _iframeWidget,
-                      ),
-                    )
                   ],
                 ),
               ),
@@ -743,6 +775,9 @@ class EstadoWidgetPacientes extends State<WidgetPacientes> {
         onPressed: () {
           setState(() {
             _clearValues();
+            //Limpar variavel img
+            _arquivoSelecionado = null;
+            _dadosBytes = null;
             _estaAdicionando = true;
             _estaAtualizando = false;
           });
