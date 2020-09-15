@@ -9,9 +9,6 @@ import 'dart:convert';
 import 'package:http_parser/http_parser.dart';
 import 'package:http/http.dart' as http;
 
-// url para imagens
-//https://arthurdlima.com/digital_aligner/images/exemplo.jpg
-
 // Data Table Widget
 class WidgetPacientes extends StatefulWidget {
   WidgetPacientes() : super();
@@ -35,7 +32,6 @@ class EstadoWidgetPacientes extends State<WidgetPacientes> {
       _complementoController,
       _estadoController,
       _cidadeController,
-      _fotoController,
       _visualizador3dController;
 
   Paciente _pacienteSelecionado;
@@ -47,6 +43,7 @@ class EstadoWidgetPacientes extends State<WidgetPacientes> {
   List<int> _arquivoSelecionado;
   Uint8List _dadosBytes;
   bool _isVisible;
+  String _temImagem;
   @override
   void initState() {
     super.initState();
@@ -63,13 +60,13 @@ class EstadoWidgetPacientes extends State<WidgetPacientes> {
     _complementoController = TextEditingController();
     _estadoController = TextEditingController();
     _cidadeController = TextEditingController();
-    _fotoController = TextEditingController();
     _visualizador3dController = TextEditingController();
 
     //_formKey = new GlobalKey();
     _arquivoSelecionado = List<int>();
     _dadosBytes = new Uint8List(8);
     _isVisible = false;
+    _temImagem = "Não";
 
     _retornarPacientes();
   }
@@ -82,7 +79,7 @@ class EstadoWidgetPacientes extends State<WidgetPacientes> {
   }
 
   // Para envio de imagens
-  Future _enviarImg() async {
+  Future<String> _enviarImg() async {
     try {
       var url = Uri.parse(
           'https://arthurdlima.com/digital_aligner/controller/controller_pacientes.php');
@@ -98,13 +95,14 @@ class EstadoWidgetPacientes extends State<WidgetPacientes> {
       requisicao.send().then((resposta) async {
         http.Response.fromStream(resposta).then((response) {
           if (response.statusCode == 200) {
-            print(response.body);
+            return response.body.toString();
           }
         });
       });
     } catch (e) {
       print("Erro ao tentar enviar imagem.");
     }
+    return '';
   }
 
   // Para upload de imagens
@@ -125,6 +123,7 @@ class EstadoWidgetPacientes extends State<WidgetPacientes> {
               Base64Decoder().convert(resultado.toString().split(",").last);
           _arquivoSelecionado = _dadosBytes;
           _isVisible = true;
+          _temImagem = "Sim";
           _showSnackBar(context, "Imagem carregada!");
           //Criando novo popup e carregando as antigas variáveis
           _criarFormulario(context);
@@ -172,7 +171,7 @@ class EstadoWidgetPacientes extends State<WidgetPacientes> {
             _complementoController.text,
             _estadoController.text,
             _cidadeController.text,
-            _fotoController.text,
+            _temImagem,
             _visualizador3dController.text)
         .then((resultado) {
       print(resultado);
@@ -200,7 +199,7 @@ class EstadoWidgetPacientes extends State<WidgetPacientes> {
             _complementoController.text,
             _estadoController.text,
             _cidadeController.text,
-            _fotoController.text,
+            _temImagem,
             _visualizador3dController.text)
         .then((resultado) {
       print(resultado);
@@ -235,7 +234,6 @@ class EstadoWidgetPacientes extends State<WidgetPacientes> {
     _complementoController.text = '';
     _estadoController.text = '';
     _cidadeController.text = '';
-    _fotoController.text = '';
     _visualizador3dController.text = '';
     //Limpar variavel img
     _arquivoSelecionado = null;
@@ -251,7 +249,6 @@ class EstadoWidgetPacientes extends State<WidgetPacientes> {
     _complementoController.text = paciente.complemento;
     _estadoController.text = paciente.estado;
     _cidadeController.text = paciente.cidade;
-    _fotoController.text = paciente.foto;
     _visualizador3dController.text = paciente.visualizador3d;
   }
 

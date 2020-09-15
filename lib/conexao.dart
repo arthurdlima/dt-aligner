@@ -76,7 +76,7 @@ class Conexao {
   }
   // Atualizar paciente
 
-  static Future<String> atualizarPaciente(
+  static Future atualizarPaciente(
       String idPaciente,
       String nome,
       String sobrenome,
@@ -107,7 +107,7 @@ class Conexao {
       print('Resposta atualizar paciente: ${resposta.body}');
 
       if (200 == resposta.statusCode) {
-        return resposta.body;
+        print(resposta.body);
       } else {
         return "Erro!";
       }
