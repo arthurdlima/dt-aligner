@@ -1,5 +1,6 @@
+import 'dart:ui' as ui;
+import 'dart:html';
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'paciente.dart';
 import 'conexao.dart';
@@ -24,6 +25,8 @@ class EstadoWidgetPacientes extends State<WidgetPacientes> {
   List<Paciente> _pacientes;
   GlobalKey<ScaffoldState> _scaffoldKey;
 
+  final IFrameElement _iframeElement = IFrameElement();
+  Widget _iframeWidget;
   //controladores
   TextEditingController _nomeController,
       _sobreNomeController,
@@ -51,6 +54,22 @@ class EstadoWidgetPacientes extends State<WidgetPacientes> {
     _pacientes = [];
     _estaAtualizando = false;
     _estaAdicionando = false;
+
+    _iframeElement.height = '500';
+    _iframeElement.width = '500';
+    _iframeElement.src =
+        'https://sketchfab.com/models/1de3ecf4ff3b41648fd0ae982bb2ac9a/embed?autostart=1';
+    _iframeElement.style.border = 'none';
+    // ignore: undefined_prefixed_name
+    ui.platformViewRegistry.registerViewFactory(
+      'iframeElement',
+      (int viewId) => _iframeElement,
+    );
+
+    _iframeWidget = HtmlElementView(
+      key: UniqueKey(),
+      viewType: 'iframeElement',
+    );
 
     _scaffoldKey = GlobalKey(); // Pegar contexto para mostrar o snackbar widget
 
@@ -706,6 +725,13 @@ class EstadoWidgetPacientes extends State<WidgetPacientes> {
                     Container(
                       child: _dataBody(),
                     ),
+                    Center(
+                      child: SizedBox(
+                        height: 400,
+                        width: 400,
+                        child: _iframeWidget,
+                      ),
+                    )
                   ],
                 ),
               ),
