@@ -38,7 +38,7 @@ class Conexao {
   }
 
   // Adicionar paciente
-  static Future<String> adicionarPaciente(
+  static Future adicionarPaciente(
       String nome,
       String sobrenome,
       String email,
@@ -47,7 +47,6 @@ class Conexao {
       String complemento,
       String estado,
       String cidade,
-      String foto,
       String visualizador3d) async {
     try {
       var mapa = Map<String, dynamic>();
@@ -60,7 +59,6 @@ class Conexao {
       mapa['complemento'] = complemento;
       mapa['estado'] = estado;
       mapa['cidade'] = cidade;
-      mapa['foto'] = foto;
       mapa['visualizador3d'] = visualizador3d;
       final resposta = await http.post(ROOT, body: mapa);
 
@@ -86,7 +84,6 @@ class Conexao {
       String complemento,
       String estado,
       String cidade,
-      String foto,
       String visualizador3d) async {
     try {
       var mapa = Map<String, dynamic>();
@@ -100,14 +97,13 @@ class Conexao {
       mapa['complemento'] = complemento;
       mapa['estado'] = estado;
       mapa['cidade'] = cidade;
-      mapa['foto'] = foto;
       mapa['visualizador3d'] = visualizador3d;
 
       final resposta = await http.post(ROOT, body: mapa);
       print('Resposta atualizar paciente: ${resposta.body}');
 
       if (200 == resposta.statusCode) {
-        print(resposta.body);
+        return resposta.body;
       } else {
         return "Erro!";
       }

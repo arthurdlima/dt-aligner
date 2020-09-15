@@ -1,4 +1,5 @@
-import 'package:flutter/foundation.dart';
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'paciente.dart';
 import 'conexao.dart';
@@ -36,20 +37,21 @@ class EstadoWidgetPacientes extends State<WidgetPacientes> {
 
   Paciente _pacienteSelecionado;
   bool _estaAtualizando;
-  String _progressoTitle;
+  bool _estaAdicionando;
 
   // Para upload de imagens
   //GlobalKey _formKey = new GlobalKey();
   List<int> _arquivoSelecionado;
   Uint8List _dadosBytes;
   bool _isVisible;
-  String _temImagem;
+
   @override
   void initState() {
     super.initState();
     _pacientes = [];
     _estaAtualizando = false;
-    _progressoTitle = widget.title;
+    _estaAdicionando = false;
+
     _scaffoldKey = GlobalKey(); // Pegar contexto para mostrar o snackbar widget
 
     _nomeController = TextEditingController();
@@ -66,20 +68,14 @@ class EstadoWidgetPacientes extends State<WidgetPacientes> {
     _arquivoSelecionado = List<int>();
     _dadosBytes = new Uint8List(8);
     _isVisible = false;
-    _temImagem = "Não";
 
     _retornarPacientes();
   }
 
   // Atualizar title no AppBar
-  _mostrarProgresso(String mensagem) {
-    setState(() {
-      _progressoTitle = mensagem;
-    });
-  }
 
   // Para envio de imagens
-  Future<String> _enviarImg() async {
+  Future _enviarImg() async {
     try {
       var url = Uri.parse(
           'https://arthurdlima.com/digital_aligner/controller/controller_pacientes.php');
@@ -91,18 +87,17 @@ class EstadoWidgetPacientes extends State<WidgetPacientes> {
             'file', _arquivoSelecionado,
             contentType: new MediaType('application', 'octet-stream'),
             filename: _pacienteSelecionado.idPaciente));
-
+      // resolver isso aqui dps
       requisicao.send().then((resposta) async {
         http.Response.fromStream(resposta).then((response) {
           if (response.statusCode == 200) {
-            return response.body.toString();
+            print(response.body);
           }
         });
       });
     } catch (e) {
       print("Erro ao tentar enviar imagem.");
     }
-    return '';
   }
 
   // Para upload de imagens
@@ -123,10 +118,11 @@ class EstadoWidgetPacientes extends State<WidgetPacientes> {
               Base64Decoder().convert(resultado.toString().split(",").last);
           _arquivoSelecionado = _dadosBytes;
           _isVisible = true;
-          _temImagem = "Sim";
           _showSnackBar(context, "Imagem carregada!");
           //Criando novo popup e carregando as antigas variáveis
-          _criarFormulario(context);
+          _estaAdicionando
+              ? _criarFormularioAdd(context)
+              : _criarFormulario(context);
         });
       }
 
@@ -145,23 +141,20 @@ class EstadoWidgetPacientes extends State<WidgetPacientes> {
   }
 
   _retornarPacientes() {
-    _mostrarProgresso('Carregando pacientes');
     Conexao.retornarPacientes().then((pacientes) {
       setState(() {
         _pacientes = pacientes;
       });
-      _mostrarProgresso(widget.title);
-      //print("Tamanho ${pacientes.length}");
     });
   }
 
   _adicionarPaciente() {
     if (_emailController.text.isEmpty) {
-      _showSnackBar(context, '*Id e *email são obrigatórios!');
+      _showSnackBar(context, '*email é obrigatórios!');
       print('*email é obrigatório!');
       return;
     }
-    _mostrarProgresso('Adicionando paciente...');
+
     Conexao.adicionarPaciente(
             _nomeController.text,
             _sobreNomeController.text,
@@ -171,24 +164,18 @@ class EstadoWidgetPacientes extends State<WidgetPacientes> {
             _complementoController.text,
             _estadoController.text,
             _cidadeController.text,
-            _temImagem,
             _visualizador3dController.text)
         .then((resultado) {
       print(resultado);
       if ('paciente adicionado com sucesso' == resultado) {
         _retornarPacientes(); // Retorna nova lista após adicionar
         _showSnackBar(context, resultado);
-        _mostrarProgresso('Data Table Pacientes');
         _clearValues();
       }
     });
   }
 
   _atualizarPaciente() {
-    setState(() {
-      _estaAtualizando = true;
-    });
-    _mostrarProgresso('Atualizando cliente...');
     Conexao.atualizarPaciente(
             _pacienteSelecionado.idPaciente,
             _nomeController.text,
@@ -199,7 +186,6 @@ class EstadoWidgetPacientes extends State<WidgetPacientes> {
             _complementoController.text,
             _estadoController.text,
             _cidadeController.text,
-            _temImagem,
             _visualizador3dController.text)
         .then((resultado) {
       print(resultado);
@@ -209,14 +195,12 @@ class EstadoWidgetPacientes extends State<WidgetPacientes> {
           _estaAtualizando = false;
         });
         _showSnackBar(context, resultado);
-        _mostrarProgresso('Data Table Pacientes');
         _clearValues();
       }
     });
   }
 
   _deletarPaciente(Paciente paciente) {
-    _mostrarProgresso('Deletando paciente...');
     Conexao.deletarPaciente(paciente.idPaciente).then((resultado) {
       if ('paciente deletado com sucesso' == resultado) {
         _retornarPacientes(); // Retorna nova lista após deletar
@@ -308,105 +292,119 @@ class EstadoWidgetPacientes extends State<WidgetPacientes> {
                     DataCell(Text(paciente.idPaciente), onTap: () {
                       _mostrarValores(paciente);
                       _criarFormulario(context);
-                      _pacienteSelecionado = paciente;
                       setState(() {
+                        _pacienteSelecionado = paciente;
                         _estaAtualizando = true;
+                        _estaAdicionando = false;
                         _isVisible = false;
                       });
                     }),
                     DataCell(Text(paciente.nome), onTap: () {
                       _mostrarValores(paciente);
                       _criarFormulario(context);
-                      _pacienteSelecionado = paciente;
                       setState(() {
+                        _pacienteSelecionado = paciente;
                         _estaAtualizando = true;
+                        _estaAdicionando = false;
                         _isVisible = false;
                       });
                     }),
                     DataCell(Text(paciente.sobreNome), onTap: () {
                       _mostrarValores(paciente);
                       _criarFormulario(context);
-                      _pacienteSelecionado = paciente;
                       setState(() {
+                        _pacienteSelecionado = paciente;
                         _estaAtualizando = true;
+                        _estaAdicionando = false;
                         _isVisible = false;
                       });
                     }),
                     DataCell(Text(paciente.email), onTap: () {
                       _mostrarValores(paciente);
                       _criarFormulario(context);
-                      _pacienteSelecionado = paciente;
                       setState(() {
+                        _pacienteSelecionado = paciente;
                         _estaAtualizando = true;
+                        _estaAdicionando = false;
                         _isVisible = false;
                       });
                     }),
                     DataCell(Text(paciente.rua), onTap: () {
                       _mostrarValores(paciente);
                       _criarFormulario(context);
-                      _pacienteSelecionado = paciente;
                       setState(() {
+                        _pacienteSelecionado = paciente;
                         _estaAtualizando = true;
+                        _estaAdicionando = false;
                         _isVisible = false;
                       });
                     }),
                     DataCell(Text(paciente.numero), onTap: () {
                       _mostrarValores(paciente);
                       _criarFormulario(context);
-                      _pacienteSelecionado = paciente;
                       setState(() {
+                        _pacienteSelecionado = paciente;
                         _estaAtualizando = true;
+                        _estaAdicionando = false;
                         _isVisible = false;
                       });
                     }),
                     DataCell(Text(paciente.complemento), onTap: () {
                       _mostrarValores(paciente);
                       _criarFormulario(context);
-                      _pacienteSelecionado = paciente;
                       setState(() {
+                        _pacienteSelecionado = paciente;
                         _estaAtualizando = true;
+                        _estaAdicionando = false;
                         _isVisible = false;
                       });
                     }),
                     DataCell(Text(paciente.estado), onTap: () {
                       _mostrarValores(paciente);
                       _criarFormulario(context);
-                      _pacienteSelecionado = paciente;
                       setState(() {
+                        _pacienteSelecionado = paciente;
                         _estaAtualizando = true;
+                        _estaAdicionando = false;
                         _isVisible = false;
                       });
                     }),
                     DataCell(Text(paciente.cidade), onTap: () {
                       _mostrarValores(paciente);
                       _criarFormulario(context);
-                      _pacienteSelecionado = paciente;
                       setState(() {
+                        _pacienteSelecionado = paciente;
                         _estaAtualizando = true;
+                        _estaAdicionando = false;
                         _isVisible = false;
                       });
                     }),
                     DataCell(Text(paciente.foto), onTap: () {
                       _mostrarValores(paciente);
                       _criarFormulario(context);
-                      _pacienteSelecionado = paciente;
                       setState(() {
+                        _pacienteSelecionado = paciente;
                         _estaAtualizando = true;
+                        _estaAdicionando = false;
                         _isVisible = false;
                       });
                     }),
                     DataCell(Text(paciente.visualizador3d), onTap: () {
                       _mostrarValores(paciente);
                       _criarFormulario(context);
-                      _pacienteSelecionado = paciente;
                       setState(() {
+                        _pacienteSelecionado = paciente;
                         _estaAtualizando = true;
+                        _estaAdicionando = false;
                         _isVisible = false;
                       });
                     }),
                     DataCell(IconButton(
                       icon: Icon(Icons.delete),
                       onPressed: () {
+                        setState(() {
+                          _pacienteSelecionado = null;
+                        });
                         _deletarPaciente(paciente);
                         _isVisible = false;
                       },
@@ -436,6 +434,16 @@ class EstadoWidgetPacientes extends State<WidgetPacientes> {
                   controller: _scrollController,
                   child: ListBody(
                     children: <Widget>[
+                      _pacienteSelecionado.foto.isEmpty
+                          ? Image.asset(
+                              'web/assets/sem-imagem.jpg',
+                              height: 200,
+                            )
+                          : Image.network(
+                              _pacienteSelecionado.foto,
+                              height: 200,
+                              key: ValueKey(new Random().nextInt(100)),
+                            ),
                       Text(
                         "Nome",
                         style: TextStyle(fontWeight: FontWeight.bold),
@@ -527,8 +535,135 @@ class EstadoWidgetPacientes extends State<WidgetPacientes> {
                 elevation: 5.0,
                 child: Text('Atualizar'),
                 onPressed: () {
-                  _enviarImg();
+                  //Se imagem estiver carregada, enviá-la
+                  if (_isVisible == true) {
+                    _enviarImg();
+                  }
                   _atualizarPaciente();
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          );
+        });
+  }
+
+  _criarFormularioAdd(BuildContext context) {
+    final ScrollController _scrollController = ScrollController();
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text("Adicionar Paciente"),
+            content: Container(
+              width: 800,
+              child: Scrollbar(
+                isAlwaysShown: true,
+                controller: _scrollController,
+                child: SingleChildScrollView(
+                  controller: _scrollController,
+                  child: ListBody(
+                    children: <Widget>[
+                      Image.asset(
+                        'web/assets/sem-imagem.jpg',
+                        height: 200,
+                      ),
+                      Text(
+                        "Nome",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      TextField(
+                        controller: _nomeController,
+                      ),
+                      Text(
+                        "Sobrenome",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      TextField(
+                        controller: _sobreNomeController,
+                      ),
+                      Text(
+                        "Email",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      TextField(
+                        controller: _emailController,
+                      ),
+                      Text(
+                        "Rua",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      TextField(
+                        controller: _ruaController,
+                      ),
+                      Text(
+                        "Numero",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      TextField(
+                        controller: _numeroController,
+                      ),
+                      Text(
+                        "Complemento",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      TextField(
+                        controller: _complementoController,
+                      ),
+                      Text(
+                        "Estado",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      TextField(
+                        controller: _estadoController,
+                      ),
+                      Text(
+                        "Cidade",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      TextField(
+                        controller: _cidadeController,
+                      ),
+                      Text(
+                        "Foto",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      RaisedButton(
+                        onPressed: () {
+                          _escolherImg();
+                        },
+                        child: const Text('Carregar Foto',
+                            style: TextStyle(fontSize: 20)),
+                      ),
+                      Visibility(
+                        visible: _isVisible,
+                        child: Text('Imagem Carregada!',
+                            textAlign: TextAlign.center,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                      ),
+                      Text(
+                        "Visualizador 3D",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      TextField(
+                        controller: _visualizador3dController,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            actions: <Widget>[
+              MaterialButton(
+                elevation: 5.0,
+                child: Text('Adicionar'),
+                onPressed: () {
+                  //Se imagem estiver carregada, enviá-la
+                  if (_isVisible == true) {
+                    _enviarImg();
+                  }
+                  _adicionarPaciente();
                   Navigator.pop(context);
                 },
               ),
@@ -544,13 +679,19 @@ class EstadoWidgetPacientes extends State<WidgetPacientes> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: Text(_progressoTitle), // metodo _mostrarProgresso
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.refresh),
-            onPressed: _retornarPacientes(),
-          ),
-        ],
+        toolbarHeight: 80,
+        backgroundColor: Colors.indigo[900],
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(
+              'web/assets/logo.png',
+              fit: BoxFit.contain,
+              height: 32,
+            ),
+          ],
+        ),
+        actions: <Widget>[],
       ),
       body: LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraint) {
@@ -574,7 +715,12 @@ class EstadoWidgetPacientes extends State<WidgetPacientes> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          _adicionarPaciente();
+          setState(() {
+            _clearValues();
+            _estaAdicionando = true;
+            _estaAtualizando = false;
+          });
+          _criarFormularioAdd(context);
         },
         child: Icon(Icons.add),
       ),
