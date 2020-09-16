@@ -6,6 +6,9 @@ class Conexao {
   static const ROOT =
       'https://arthurdlima.com/digital_aligner/controller/controller_pacientes.php';
 
+  /*static const ROOT =
+      'http://localhost/digital-aligner/controller/controller_pacientes.php';*/
+
   static const _ACAO_RETORNAR_TODOS = 'RETORNAR_TODOS';
   static const _ACAO_ADD_PACIENTE = 'ADD_PACIENTE';
   static const _ACAO_ATUALIZAR_PACIENTE = 'ATUALIZAR_PACIENTE';

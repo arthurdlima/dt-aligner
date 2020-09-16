@@ -96,9 +96,16 @@ class EstadoWidgetPacientes extends State<WidgetPacientes> {
 
   // Para envio de imagens
   Future _enviarImg() async {
+    //Pequena diferença no nome do arquivo de envio para add cliente
+    //e atualizar cliente
+    var fName;
+    _estaAdicionando
+        ? fName = "atual"
+        : fName = _pacienteSelecionado.idPaciente;
+
     try {
       var url = Uri.parse(
-          'https://arthurdlima.com/digital_aligner/controller/controller_pacientes.php');
+          'http://localhost/digital-aligner/controller/controller_pacientes.php');
 
       var requisicao = new http.MultipartRequest("POST", url)
         ..fields['rota'] = 'UPLOAD_IMAGEM';
@@ -106,7 +113,7 @@ class EstadoWidgetPacientes extends State<WidgetPacientes> {
         ..files.add(await http.MultipartFile.fromBytes(
             'file', _arquivoSelecionado,
             contentType: new MediaType('application', 'octet-stream'),
-            filename: _pacienteSelecionado.idPaciente));
+            filename: fName));
       // resolver isso aqui dps
       requisicao.send().then((resposta) async {
         http.Response.fromStream(resposta).then((response) {
@@ -688,7 +695,7 @@ class EstadoWidgetPacientes extends State<WidgetPacientes> {
                       ),
                       RaisedButton(
                         onPressed: () {
-                          //_escolherImg();
+                          _escolherImg();
                         },
                         child: const Text('Carregar Foto',
                             style: TextStyle(fontSize: 20)),
@@ -721,7 +728,14 @@ class EstadoWidgetPacientes extends State<WidgetPacientes> {
                 elevation: 5.0,
                 child: Text('Adicionar'),
                 onPressed: () {
-                  _adicionarPaciente();
+                  //Se imagem estiver carregada, enviá-la
+                  if (_isVisible == true) {
+                    _enviarImg().then((value) {
+                      _adicionarPaciente();
+                    });
+                  } else {
+                    _adicionarPaciente();
+                  }
                   Navigator.pop(context);
                 },
               ),
